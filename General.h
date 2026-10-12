@@ -1,7 +1,7 @@
 #ifndef LUATT_INCLUDE__GENERAL_H
 #define LUATT_INCLUDE__GENERAL_H
 #include "LuaLib\lua.hpp"
-#define LUATT_BUILD "160626"
+#define LUATT_BUILD "121026"
 
 #include "Defines.h"
 #include "Standard.h"

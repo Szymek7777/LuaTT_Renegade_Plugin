@@ -4541,8 +4541,10 @@ int Lua_cPlayer(lua_State *L)
 		lua_setfield(L, -2, "Total_Time");
 		lua_pushnumber(L, p->Get_Vis_ID());
 		lua_setfield(L, -2, "Vis_ID");
+#ifdef DAPLUGIN
 		lua_pushnumber(L, p->Fps);
 		lua_setfield(L, -2, "Fps");
+#endif
 		return 1;
 	}
 	return 0;
@@ -15166,6 +15168,7 @@ int Lua_Set_Sight_Arc(lua_State* L)
  */
 int Lua_Get_Hide_Team_Battlefield_Information(lua_State* L)
 {
+#ifdef DAPLUGIN
 	if (lua_gettop(L) == 1)
 	{
 		BuildingGameObjDef* def = (BuildingGameObjDef*)Find_Definition(luaL_checknumber(L, 1));
@@ -15175,6 +15178,7 @@ int Lua_Get_Hide_Team_Battlefield_Information(lua_State* L)
 			return 1;
 		}
 	}
+#endif
 	return 0;
 }
 
@@ -15187,6 +15191,7 @@ int Lua_Get_Hide_Team_Battlefield_Information(lua_State* L)
  */
 int Lua_HideTeamBattlefieldInformation(lua_State* L)
 {
+#ifdef DAPLUGIN
 	if (lua_gettop(L) == 2)
 	{
 		BuildingGameObjDef* def = (BuildingGameObjDef*)Find_Definition(luaL_checknumber(L, 1));
@@ -15195,6 +15200,7 @@ int Lua_HideTeamBattlefieldInformation(lua_State* L)
 			def->HideTeamBattlefieldInformation = lua_tobooleanCPP(L, 2);
 		}
 	}
+#endif
 	return 0;
 }
 
