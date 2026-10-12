@@ -1271,16 +1271,6 @@ void LuaManager::CallInvoke(const char *Function, const char *Arg)
 
 void LuaManager::Load()
 {
-	int Loc = (int)main_loop_glue - 0x0043DFA8 - 5;
-	char h[5];
-	*h = '\xE9';
-	memcpy((void *)(h + 1), (void *)&Loc, 4);
-
-	unsigned long op;
-	void *p = OpenProcess(PROCESS_ALL_ACCESS, 0, GetCurrentProcessId());
-	VirtualProtectEx(p, (void *)0x0043DFA8, 5, PAGE_EXECUTE_READWRITE, &op);
-	WriteProcessMemory(p, (void *)0x0043DFA8, h, 5, NULL);
-	VirtualProtectEx(p, (void *)0x0043DFA8, 5, op, NULL);
 
 #ifndef LUATT_EXPORTS
 	LoadLua();
@@ -1292,13 +1282,13 @@ void LuaManager::ShowBanner()
 {
 	Console_Output("|-----------------------------------------------|\n");
 #ifdef DAPLUGIN
-	Console_Output("| LuaTT (DA) 6 by sla.ro (C) 2014-2024          |\n");
+	Console_Output("| LuaTT (DA) 6 by sla.ro (C) 2014-2026          |\n");
 #else
-	Console_Output("| LuaTT (SSGM) 6 by sla.ro (C) 2014-2024        |\n");
+	Console_Output("| LuaTT (SSGM) 6 by sla.ro (C) 2014-2026        |\n");
 #endif
 	Console_Output("| Original LuaV4 by jnz                         |\n");
 	Console_Output("|-----------------------------------------------|\n");
-	Console_Output("LuaTT 5 %s revision\n", LUATT_BUILD);
+	Console_Output("LuaTT 6 %s revision\n", LUATT_BUILD);
 }
 #endif
 

@@ -8,10 +8,5 @@ This file is part of the LuaTT
 #ifndef INCLUDE_LUAFUNCTIONS
 #define INCLUDE_LUAFUNCTIONS
 #include "LuaLib/lua.hpp"
-
 void AddFunctions(lua_State *L);
-
-//class SpawnerClass;
-//extern REF_DECL(DynamicVectorClass<SpawnerClass*>, SpawnerList);
-
 #endif

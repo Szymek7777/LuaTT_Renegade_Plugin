@@ -1261,8 +1261,20 @@ int LuaHUDSurfaceClass::Remove_Element(lua_State *L)
 	HUDSurfaceClass *a = GetInstance(L, 1);
 	if (a != nullptr)
 	{
-		int id = lua_tointeger(L, 2);
-		a->Remove_Element(id);
+		int type = lua_type(L, 2);
+		if (type == LUA_TNUMBER)
+		{
+			int id = lua_tointeger(L, 2);
+			a->Remove_Element(id);
+		}
+		else if (type == LUA_TUSERDATA)
+		{
+			HUDElementClass *element = *reinterpret_cast<HUDElementClass **>(lua_touserdata(L, 2));
+			if (element)
+			{
+				a->Remove_Element(element);
+			}
+		}
 	}
 	return 0;
 }

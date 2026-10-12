@@ -607,7 +607,11 @@ int LuaDA_Host_Message(lua_State* L)
 	return 1;
 }
 
+#if RENEGADE_VERSION == 1038
 REF_DEF2(float, TimeScale, 0, 0x008242B8);
+#else
+REF_DEF2(float, TimeScale, 0x00811E60, 0x00811038);
+#endif
 
 int LuaDA_TimeScale(lua_State* L)
 {

@@ -1,7 +1,7 @@
 #ifndef LUATT_INCLUDE__GENERAL_H
 #define LUATT_INCLUDE__GENERAL_H
 #include "LuaLib\lua.hpp"
-#define LUATT_BUILD "120326"
+#define LUATT_BUILD "160626"
 
 #include "Defines.h"
 #include "Standard.h"
@@ -12,4 +12,5 @@
 void *lua_testudata(lua_State *L, int idx, const char *tname);
 #endif
 
+#define RENEGADE_VERSION 1037
 
