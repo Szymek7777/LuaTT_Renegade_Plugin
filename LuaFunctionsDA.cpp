@@ -28,6 +28,10 @@ This file is part of the LuaTT
 #include "da_cratemanager.h"
 #include "da_game.h"
 #include "da_player.h"
+#include "da_team.h"
+#include "da_vehicle.h"
+#include "da_translation.h"
+#include "da_damagelog.h"
 
 #include "engine_def.h"
 #include "engine_phys.h"
@@ -447,6 +451,130 @@ int LuaDA_Is_Stealth_Unit(lua_State* L)
 	return 1;
 }
 
+/*int LuaDA_Is_Stealth_Enabled2(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	GameObject* obj = Commands->Find_Object(lua_tonumber(L, 1));
+	if (obj != nullptr)
+	{
+		lua_pushboolean(L, Is_Stealth_Enabled2(obj));
+	}
+
+	return 1;
+}*/
+
+int LuaDA_Get_Ground_Vehicle_Count(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	int team = lua_tonumber(L, 1);
+	lua_pushnumber(L, Get_Ground_Vehicle_Count(team));
+	return 1;
+}
+
+int LuaDA_Get_Air_Vehicle_Count(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	int team = lua_tonumber(L, 1);
+	lua_pushnumber(L, Get_Air_Vehicle_Count(team));
+	return 1;
+}
+
+int LuaDA_Get_Naval_Vehicle_Count(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	int team = lua_tonumber(L, 1);
+	lua_pushnumber(L, Get_Naval_Vehicle_Count(team));
+	return 1;
+}
+
+int LuaDA_Setup_Send_Message_Fake(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	const char* nick = lua_tostring(L, 1);
+	int id = (lua_gettop(L) >= 2) ? (int)lua_tonumber(L, 2) : 0;
+	lua_pushnumber(L, Setup_Send_Message_Fake(nick, id));
+	return 1;
+}
+
+int LuaDA_Setup_Send_Message_Team_Fake(lua_State* L)
+{
+	if (lua_gettop(L) < 2) return 0;
+	const char* nick = lua_tostring(L, 1);
+	int team = lua_tonumber(L, 2);
+	int id = (lua_gettop(L) >= 3) ? (int)lua_tonumber(L, 3) : 0;
+	lua_pushnumber(L, Setup_Send_Message_Team_Fake(nick, team, id));
+	return 1;
+}
+
+int LuaDA_Restore_Send_Message_Fake(lua_State* L)
+{
+	Restore_Send_Message_Fake();
+	return 0;
+}
+
+int LuaDA_Send_Announcement(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	Send_Announcement(lua_tostring(L, 1));
+	return 0;
+}
+
+int LuaDA_Send_Announcement_Version_Less_Than(lua_State* L)
+{
+	if (lua_gettop(L) < 2) return 0;
+	Send_Announcement_Version_Less_Than(lua_tostring(L, 1), lua_tonumber(L, 2));
+	return 0;
+}
+
+int LuaDA_Send_Announcement_Player(lua_State* L)
+{
+	if (lua_gettop(L) < 2) return 0;
+	Send_Announcement_Player(lua_tonumber(L, 1), lua_tostring(L, 2));
+	return 0;
+}
+
+int LuaDA_Send_Announcement_Player_Version_Less_Than(lua_State* L)
+{
+	if (lua_gettop(L) < 3) return 0;
+	Send_Announcement_Player_Version_Less_Than(lua_tonumber(L, 1), lua_tostring(L, 2), lua_tonumber(L, 3));
+	return 0;
+}
+
+int LuaDA_Send_Announcement_Team(lua_State* L)
+{
+	if (lua_gettop(L) < 2) return 0;
+	Send_Announcement_Team(lua_tonumber(L, 1), lua_tostring(L, 2));
+	return 0;
+}
+
+int LuaDA_Send_Announcement_Team_Version_Less_Than(lua_State* L)
+{
+	if (lua_gettop(L) < 3) return 0;
+	Send_Announcement_Team_Version_Less_Than(lua_tonumber(L, 1), lua_tostring(L, 2), lua_tonumber(L, 3));
+	return 0;
+}
+
+int LuaDA_Send_Message_Team_With_Team_Color(lua_State* L)
+{
+	if (lua_gettop(L) < 2) return 0;
+	Send_Message_Team_With_Team_Color(lua_tonumber(L, 1), lua_tostring(L, 2));
+	return 0;
+}
+
+int LuaDA_Send_Message_Player_By_ID(lua_State* L)
+{
+	if (lua_gettop(L) < 5) return 0;
+	Send_Message_Player_By_ID(lua_tonumber(L, 1), (unsigned int)lua_tonumber(L, 2), (unsigned int)lua_tonumber(L, 3), (unsigned int)lua_tonumber(L, 4), lua_tostring(L, 5));
+	return 0;
+}
+
+int LuaDA_Create_2D_WAV_Sound_Player_By_ID(lua_State* L)
+{
+	if (lua_gettop(L) < 2) return 0;
+	Create_2D_WAV_Sound_Player_By_ID(lua_tonumber(L, 1), lua_tostring(L, 2));
+	return 0;
+}
+
 
 int LuaDA_Get_Distance_To_Closest_Building(lua_State* L)
 {
@@ -648,6 +776,49 @@ int LuaDA_Owns_Vehicle(lua_State* L)
 		}
 	}
 	return 0;
+}
+
+int LuaDA_Exit_Vehicle(lua_State* L)
+{
+	if (lua_gettop(L) < 1)
+	{
+		lua_pushboolean(L, false);
+		return 1;
+	}
+	GameObject* obj = Commands->Find_Object(lua_tonumber(L, 1));
+	if (obj && obj->As_SoldierGameObj())
+	{
+		lua_pushboolean(L, Exit_Vehicle(obj->As_SoldierGameObj()));
+	}
+	else
+	{
+		lua_pushboolean(L, false);
+	}
+	return 1;
+}
+
+int LuaDA_Reverse_Damage(lua_State* L)
+{
+	if (lua_gettop(L) < 2) return 0;
+	GameObject* obj = Commands->Find_Object(lua_tonumber(L, 1));
+	if (obj)
+	{
+		Reverse_Damage(obj, static_cast<float>(lua_tonumber(L, 2)));
+	}
+	return 1;
+}
+
+int LuaDA_Set_Emot_Icon(lua_State* L)
+{
+	if (lua_gettop(L) < 3) return 0;
+	int ID = static_cast<int>(lua_tonumber(L, 1));
+	const char* Model = lua_tostring(L, 2);
+	int Team = static_cast<int>(lua_tonumber(L, 3));
+	if (Model)
+	{
+		Set_Emote_Icon(ID, Model, Team);
+	}
+	return 1;
 }
 
 int LuaDA_Color_Message_With_Team_Color(lua_State* L)
@@ -1337,15 +1508,388 @@ int LuaDA_Get_Access_Level(lua_State* L)
 	return 0;
 }
 
+int LuaDA_Is_Game_Mode(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	const char* name = lua_tostring(L, 1);
+	if (!name) return 0;
+	lua_pushboolean(L, DAGameManager::Is_Game_Mode(name));
+	return 1;
+}
 
+int LuaDA_Is_Shutdown_Pending(lua_State* L)
+{
+	lua_pushboolean(L, DAGameManager::Is_Shutdown_Pending());
+	return 1;
+}
 
+int LuaDA_Send(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	const char* data = lua_tostring(L, 1);
+	if (!data) return 0;
+	DALogManager::Send(data);
+	return 0;
+}
 
+int LuaDA_Get_Disable_Kill_Messages(lua_State* L)
+{
+	lua_pushboolean(L, DAPlayerManager::Get_Disable_Kill_Messages());
+	return 1;
+}
+
+int LuaDA_Get_Disable_Kill_Counter(lua_State* L)
+{
+	lua_pushboolean(L, DAPlayerManager::Get_Disable_Kill_Counter());
+	return 1;
+}
+
+int LuaDA_Get_Disable_Team_Kill_Counter(lua_State* L)
+{
+	lua_pushboolean(L, DAPlayerManager::Get_Disable_Team_Kill_Counter());
+	return 1;
+}
+
+int LuaDA_Get_Disable_Death_Counter(lua_State* L)
+{
+	lua_pushboolean(L, DAPlayerManager::Get_Disable_Death_Counter());
+	return 1;
+}
+
+int LuaDA_Get_Disable_Team_Death_Counter(lua_State* L)
+{
+	lua_pushboolean(L, DAPlayerManager::Get_Disable_Team_Death_Counter());
+	return 1;
+}
+
+int LuaDA_Get_Disable_Damage_Points(lua_State* L)
+{
+	lua_pushboolean(L, DAPlayerManager::Get_Disable_Damage_Points());
+	return 1;
+}
+
+int LuaDA_Get_Disable_Death_Points(lua_State* L)
+{
+	lua_pushboolean(L, DAPlayerManager::Get_Disable_Death_Points());
+	return 1;
+}
+
+int LuaDA_Get_Disable_Team_Score_Counter(lua_State* L)
+{
+	lua_pushboolean(L, DAPlayerManager::Get_Disable_Team_Score_Counter());
+	return 1;
+}
+
+int LuaDA_Get_Credits_Multiplier(lua_State* L)
+{
+	lua_pushnumber(L, DAPlayerManager::Get_Credits_Multiplier());
+	return 1;
+}
+
+int LuaDA_Set_Disable_Kill_Messages(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	DAPlayerManager::Set_Disable_Kill_Messages(lua_toboolean(L, 1));
+	return 0;
+}
+
+int LuaDA_Set_Disable_Kill_Counter(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	DAPlayerManager::Set_Disable_Kill_Counter(lua_toboolean(L, 1));
+	return 0;
+}
+
+int LuaDA_Set_Disable_Team_Kill_Counter(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	DAPlayerManager::Set_Disable_Team_Kill_Counter(lua_toboolean(L, 1));
+	return 0;
+}
+
+int LuaDA_Set_Disable_Death_Counter(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	DAPlayerManager::Set_Disable_Death_Counter(lua_toboolean(L, 1));
+	return 0;
+}
+
+int LuaDA_Set_Disable_Team_Death_Counter(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	DAPlayerManager::Set_Disable_Team_Death_Counter(lua_toboolean(L, 1));
+	return 0;
+}
+
+int LuaDA_Set_Disable_Damage_Points(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	DAPlayerManager::Set_Disable_Damage_Points(lua_toboolean(L, 1));
+	return 0;
+}
+
+int LuaDA_Set_Disable_Death_Points(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	DAPlayerManager::Set_Disable_Death_Points(lua_toboolean(L, 1));
+	return 0;
+}
+
+int LuaDA_Set_Disable_Team_Score_Counter(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	DAPlayerManager::Set_Disable_Team_Score_Counter(lua_toboolean(L, 1));
+	return 0;
+}
+
+int LuaDA_Set_Credits_Multiplier(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	DAPlayerManager::Set_Credits_Multiplier((float)lua_tonumber(L, 1));
+	return 0;
+}
+
+int LuaDA_Set_Force_Team(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	DATeamManager::Set_Force_Team((int)lua_tointeger(L, 1));
+	return 0;
+}
+
+int LuaDA_Get_Force_Team(lua_State* L)
+{
+	lua_pushnumber(L, DATeamManager::Get_Force_Team());
+	return 1;
+}
+
+int LuaDA_Is_Free_Team_Changing_Enabled(lua_State* L)
+{
+	lua_pushboolean(L, DATeamManager::Is_Free_Team_Changing_Enabled());
+	return 1;
+}
+
+int LuaDA_Team_Remix(lua_State* L)
+{
+	DATeamManager::Remix();
+	return 0;
+}
+
+int LuaDA_Team_Rebalance(lua_State* L)
+{
+	DATeamManager::Rebalance();
+	return 0;
+}
+
+int LuaDA_Team_Swap(lua_State* L)
+{
+	DATeamManager::Swap();
+	return 0;
+}
+
+int LuaDA_Get_Percent_Team_Damage(lua_State* L)
+{
+	if (lua_gettop(L) < 2) return 0;
+	GameObject* obj = Commands->Find_Object(lua_tonumber(L, 1));
+	if (obj == nullptr) return 0;
+	lua_pushnumber(L, DADamageLog::Get_Percent_Team_Damage(obj, (int)lua_tointeger(L, 2)));
+	return 1;
+}
+
+int LuaDA_Get_Percent_Other_Team_Damage(lua_State* L)
+{
+	if (lua_gettop(L) < 2) return 0;
+	GameObject* obj = Commands->Find_Object(lua_tonumber(L, 1));
+	if (obj == nullptr) return 0;
+	lua_pushnumber(L, DADamageLog::Get_Percent_Other_Team_Damage(obj, (int)lua_tointeger(L, 2)));
+	return 1;
+}
+
+int LuaDA_Air_Drop_Vehicle(lua_State* L)
+{
+	if (lua_gettop(L) < 4) return 0;
+	int team = (int)lua_tointeger(L, 1);
+	const char* vehicle = lua_tostring(L, 2);
+	if (vehicle == nullptr) return 0;
+	LUA_Vector3* a = LuaVector3::GetInstance(L, 3);
+	if (a == nullptr) return 0;
+	Vector3 pos = Vector3(a->X(), a->Y(), a->Z());
+	float facing = (float)lua_tonumber(L, 4);
+	VehicleGameObj* result = DAVehicleManager::Air_Drop_Vehicle(team, vehicle, pos, facing);
+	if (result == nullptr) return 0;
+	lua_pushnumber(L, Commands->Get_ID(result));
+	return 1;
+}
+
+int LuaDA_Translate_Soldier(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	GameObject* obj = Commands->Find_Object(lua_tonumber(L, 1));
+	if (obj == nullptr) return 0;
+	StringClass result = DATranslationManager::Translate_Soldier(obj);
+	lua_pushstring(L, result.Peek_Buffer());
+	return 1;
+}
+
+int LuaDA_Translate_Weapon(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	GameObject* obj = Commands->Find_Object(lua_tonumber(L, 1));
+	if (obj == nullptr) return 0;
+	const char* result = DATranslationManager::Translate_Weapon(obj);
+	if (result == nullptr) return 0;
+	lua_pushstring(L, result);
+	return 1;
+}
+
+int LuaDA_Translate_With_Team_Name(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	GameObject* obj = Commands->Find_Object(lua_tonumber(L, 1));
+	if (obj == nullptr) return 0;
+	StringClass result = DATranslationManager::Translate_With_Team_Name(obj);
+	lua_pushstring(L, result.Peek_Buffer());
+	return 1;
+}
+
+int LuaDA_Disable_Building_Type(lua_State* L)
+{
+	if (lua_gettop(L) < 2) return 0;
+	int team = lua_tonumber(L, 1);
+	BuildingConstants::BuildingType type = static_cast<BuildingConstants::BuildingType>((int)lua_tonumber(L, 2));
+	Disable_Building_Type(team, type);
+	return 0;
+}
+
+int LuaDA_Get_Hash(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	const char* str = lua_tostring(L, 1);
+	if (!str) return 0;
+	unsigned int hash = Get_Hash(str);
+	lua_pushnumber(L, hash);
+	return 1;
+}
+
+int LuaDA_Fix_Stuck_Objects(lua_State* L)
+{
+	if (lua_gettop(L) < 6) return 0;
+	float x = lua_tonumber(L, 1);
+	float y = lua_tonumber(L, 2);
+	float z = lua_tonumber(L, 3);
+	float checkrange = lua_tonumber(L, 4);
+	float range = lua_tonumber(L, 5);
+	bool destroy = lua_gettop(L) >= 6 ? lua_toboolean(L, 6) : true;
+	Vector3 pos(x, y, z);
+	Fix_Stuck_Objects(pos, checkrange, range, destroy);
+	return 0;
+}
+
+int LuaDA_Clean_Model_Name(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	const char* str = lua_tostring(L, 1);
+	if (!str) return 0;
+	StringClass result = Clean_Model_Name(StringClass(str));
+	lua_pushstring(L, result.Peek_Buffer());
+	return 1;
+}
+
+int LuaDA_Get_Building_Count(lua_State* L)
+{
+	if (lua_gettop(L) < 2) return 0;
+	int team = lua_tonumber(L, 1);
+	bool destroyed = lua_toboolean(L, 2);
+	int count = Get_Building_Count(team, destroyed);
+	lua_pushnumber(L, count);
+	return 1;
+}
+
+int LuaDA_Enable_HUD(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	bool enable = lua_toboolean(L, 1);
+	Enable_HUD(enable);
+	return 0;
+}
+
+int LuaDA_Enable_HUD_Player_By_ID(lua_State* L)
+{
+	if (lua_gettop(L) < 2) return 0;
+	int id = lua_tonumber(L, 1);
+	bool enable = lua_toboolean(L, 2);
+	Enable_HUD_Player_By_ID(id, enable);
+	return 0;
+}
+
+int LuaDA_Set_Fog_Enable_Player_By_ID(lua_State* L)
+{
+	if (lua_gettop(L) < 2) return 0;
+	int id = lua_tonumber(L, 1);
+	bool enable = lua_toboolean(L, 2);
+	Set_Fog_Enable_Player_By_ID(id, enable);
+	return 0;
+}
+
+int LuaDA_Set_Fog_Range_Player_By_ID(lua_State* L)
+{
+	if (lua_gettop(L) < 4) return 0;
+	int id = lua_tonumber(L, 1);
+	float startdistance = lua_tonumber(L, 2);
+	float enddistance = lua_tonumber(L, 3);
+	float transition = lua_tonumber(L, 4);
+	Set_Fog_Range_Player_By_ID(id, startdistance, enddistance, transition);
+	return 0;
+}
 
 void AddFunctionsDA(lua_State* L)
 {
 	lua_register(L, "DA_Get_Access_Level", LuaDA_Get_Access_Level);
 	lua_register(L, "DA_Get_Game_Mode_Short_Name", LuaDA_Get_Game_Mode_Short_Name);
 	lua_register(L, "DA_Get_Game_Mode_Long_Name", LuaDA_Get_Game_Mode_Long_Name);
+	lua_register(L, "DA_Is_Game_Mode", LuaDA_Is_Game_Mode);
+	lua_register(L, "DA_Is_Shutdown_Pending", LuaDA_Is_Shutdown_Pending);
+	lua_register(L, "DA_Send", LuaDA_Send);
+
+	// da_player.h
+	lua_register(L, "DA_Get_Disable_Kill_Messages", LuaDA_Get_Disable_Kill_Messages);
+	lua_register(L, "DA_Get_Disable_Kill_Counter", LuaDA_Get_Disable_Kill_Counter);
+	lua_register(L, "DA_Get_Disable_Team_Kill_Counter", LuaDA_Get_Disable_Team_Kill_Counter);
+	lua_register(L, "DA_Get_Disable_Death_Counter", LuaDA_Get_Disable_Death_Counter);
+	lua_register(L, "DA_Get_Disable_Team_Death_Counter", LuaDA_Get_Disable_Team_Death_Counter);
+	lua_register(L, "DA_Get_Disable_Damage_Points", LuaDA_Get_Disable_Damage_Points);
+	lua_register(L, "DA_Get_Disable_Death_Points", LuaDA_Get_Disable_Death_Points);
+	lua_register(L, "DA_Get_Disable_Team_Score_Counter", LuaDA_Get_Disable_Team_Score_Counter);
+	lua_register(L, "DA_Get_Credits_Multiplier", LuaDA_Get_Credits_Multiplier);
+	lua_register(L, "DA_Set_Disable_Kill_Messages", LuaDA_Set_Disable_Kill_Messages);
+	lua_register(L, "DA_Set_Disable_Kill_Counter", LuaDA_Set_Disable_Kill_Counter);
+	lua_register(L, "DA_Set_Disable_Team_Kill_Counter", LuaDA_Set_Disable_Team_Kill_Counter);
+	lua_register(L, "DA_Set_Disable_Death_Counter", LuaDA_Set_Disable_Death_Counter);
+	lua_register(L, "DA_Set_Disable_Team_Death_Counter", LuaDA_Set_Disable_Team_Death_Counter);
+	lua_register(L, "DA_Set_Disable_Damage_Points", LuaDA_Set_Disable_Damage_Points);
+	lua_register(L, "DA_Set_Disable_Death_Points", LuaDA_Set_Disable_Death_Points);
+	lua_register(L, "DA_Set_Disable_Team_Score_Counter", LuaDA_Set_Disable_Team_Score_Counter);
+	lua_register(L, "DA_Set_Credits_Multiplier", LuaDA_Set_Credits_Multiplier);
+
+	// da_team.h
+	lua_register(L, "DA_Set_Force_Team", LuaDA_Set_Force_Team);
+	lua_register(L, "DA_Get_Force_Team", LuaDA_Get_Force_Team);
+	lua_register(L, "DA_Is_Free_Team_Changing_Enabled", LuaDA_Is_Free_Team_Changing_Enabled);
+	lua_register(L, "DA_Team_Remix", LuaDA_Team_Remix);
+	lua_register(L, "DA_Team_Rebalance", LuaDA_Team_Rebalance);
+	lua_register(L, "DA_Team_Swap", LuaDA_Team_Swap);
+
+	// da_damagelog.h
+	lua_register(L, "DA_Get_Percent_Team_Damage", LuaDA_Get_Percent_Team_Damage);
+	lua_register(L, "DA_Get_Percent_Other_Team_Damage", LuaDA_Get_Percent_Other_Team_Damage);
+
+	// da_vehicle.h
+	lua_register(L, "DA_Air_Drop_Vehicle", LuaDA_Air_Drop_Vehicle);
+
+	// da_translation.h
+	lua_register(L, "DA_Translate_Soldier", LuaDA_Translate_Soldier);
+	lua_register(L, "DA_Translate_Weapon", LuaDA_Translate_Weapon);
+	lua_register(L, "DA_Translate_With_Team_Name", LuaDA_Translate_With_Team_Name);
+
 	lua_register(L, "DA_CreateC4", LuaDA_CreateC4);
 
 	// da_cratemanager.h
@@ -1418,11 +1962,30 @@ void AddFunctionsDA(lua_State* L)
 	lua_register(L, "DA_Set_Emote_Icon", LuaDA_Set_Emote_Icon);
 	lua_register(L, "DA_Fix_Stuck_Object", LuaDA_Fix_Stuck_Object);
 	lua_register(L, "DA_Is_Stealth_Unit", LuaDA_Is_Stealth_Unit);
+	//lua_register(L, "DA_Is_Stealth_Enabled2", LuaDA_Is_Stealth_Enabled2);
+	lua_register(L, "DA_Get_Ground_Vehicle_Count", LuaDA_Get_Ground_Vehicle_Count);
+	lua_register(L, "DA_Get_Air_Vehicle_Count", LuaDA_Get_Air_Vehicle_Count);
+	lua_register(L, "DA_Get_Naval_Vehicle_Count", LuaDA_Get_Naval_Vehicle_Count);
+	lua_register(L, "DA_Setup_Send_Message_Fake", LuaDA_Setup_Send_Message_Fake);
+	lua_register(L, "DA_Setup_Send_Message_Team_Fake", LuaDA_Setup_Send_Message_Team_Fake);
+	lua_register(L, "DA_Restore_Send_Message_Fake", LuaDA_Restore_Send_Message_Fake);
+	lua_register(L, "DA_Send_Announcement", LuaDA_Send_Announcement);
+	lua_register(L, "DA_Send_Announcement_Version_Less_Than", LuaDA_Send_Announcement_Version_Less_Than);
+	lua_register(L, "DA_Send_Announcement_Player", LuaDA_Send_Announcement_Player);
+	lua_register(L, "DA_Send_Announcement_Player_Version_Less_Than", LuaDA_Send_Announcement_Player_Version_Less_Than);
+	lua_register(L, "DA_Send_Announcement_Team", LuaDA_Send_Announcement_Team);
+	lua_register(L, "DA_Send_Announcement_Team_Version_Less_Than", LuaDA_Send_Announcement_Team_Version_Less_Than);
+	lua_register(L, "DA_Send_Message_Team_With_Team_Color", LuaDA_Send_Message_Team_With_Team_Color);
+	lua_register(L, "DA_Send_Message_Player_By_ID", LuaDA_Send_Message_Player_By_ID);
+	lua_register(L, "DA_Create_2D_WAV_Sound_Player_By_ID", LuaDA_Create_2D_WAV_Sound_Player_By_ID);
 	lua_register(L, "DA_TimeScale", LuaDA_TimeScale);
 
 	lua_register(L, "DA_Register_Crate", LuaTT_DACrateClass::Lua_Register_Crate);
 	lua_register(L, "DA_Register_Console_Function", LuaTT_DAConsoleFunction::Lua_Register_Console_Function);
 	lua_register(L, "DA_Owns_Vehicle", LuaDA_Owns_Vehicle);
+	lua_register(L, "DA_Exit_Vehicle", LuaDA_Exit_Vehicle);
+	lua_register(L, "DA_Reverse_Damage", LuaDA_Reverse_Damage);
+	lua_register(L, "DA_Set_Emot_Icon", LuaDA_Set_Emot_Icon);
 
 	lua_register(L, "DA_Page_Player", LuaDA_Page_Player);
 
@@ -1431,59 +1994,20 @@ void AddFunctionsDA(lua_State* L)
 	lua_register(L, "DA_Color_Message_With_Team_Color", LuaDA_Color_Message_With_Team_Color);
 
 	lua_register(L, "DA_Register_Null_Game_Mode", LuaDA_Register_Null_Game_Mode);
+	lua_register(L, "DA_Disable_Building_Type", LuaDA_Disable_Building_Type);
+	lua_register(L, "DA_Get_Hash", LuaDA_Get_Hash);
+	lua_register(L, "DA_Fix_Stuck_Objects", LuaDA_Fix_Stuck_Objects);
+	lua_register(L, "DA_Clean_Model_Name", LuaDA_Clean_Model_Name);
+	lua_register(L, "DA_Get_Building_Count", LuaDA_Get_Building_Count);
+	lua_register(L, "DA_Enable_HUD", LuaDA_Enable_HUD);
+	lua_register(L, "DA_Enable_HUD_Player_By_ID", LuaDA_Enable_HUD_Player_By_ID);
+	lua_register(L, "DA_Set_Fog_Enable_Player_By_ID", LuaDA_Set_Fog_Enable_Player_By_ID);
+	lua_register(L, "DA_Set_Fog_Range_Player_By_ID", LuaDA_Set_Fog_Range_Player_By_ID);
 
 	/*
-	DA_API bool Is_Stealth_Enabled2(GameObject *obj);
-	DA_API unsigned int Get_Ground_Vehicle_Count(int Team);
-	DA_API unsigned int Get_Air_Vehicle_Count(int Team);
-	DA_API unsigned int Get_Naval_Vehicle_Count(int Team);
-
-	DA_API int Setup_Send_Message_Fake(const char *NewNick,int ID = 0);
-	DA_API int Setup_Send_Message_Team_Fake(const char *NewNick,int Team,int ID = 0);
-	DA_API void Restore_Send_Message_Fake();
-	DA_API void Send_Announcement(const char *StringID);
-	DA_API void Send_Announcement_Version_Less_Than(const char *StringID,float Version);
-	DA_API void Send_Announcement_Player(int ID,const char *StringID);
-	DA_API void Send_Announcement_Player_Version_Less_Than(int ID,const char *StringID,float Version);
-	DA_API void Send_Announcement_Team(int Team,const char *StringID);
-	DA_API void Send_Announcement_Team_Version_Less_Than(int Team,const char *StringID,float Version);
-	DA_API void Send_Message_Team_With_Team_Color(int Team,const char *Msg);
-	DA_API void Send_Message_Player_By_ID(int ID,unsigned int Red,int unsigned Green,int unsigned Blue,const char *Message);
-	DA_API void Create_2D_WAV_Sound_Player_By_ID(int ID,const char *Sound);
-	DA_API PhysicalGameObj *Create_Object(const char *Preset,const Vector3 &Position);
-	DA_API PhysicalGameObj *Create_Object(const char *Preset,const Matrix3D &Transform);
-	DA_API PhysicalGameObj *Create_Object(int Preset,const Vector3 &Position);
-	DA_API PhysicalGameObj *Create_Object(int Preset,const Matrix3D &Transform);
-	DA_API PhysicalGameObj *Create_Object(const DefinitionClass *Def,const Vector3 &Position);
-	DA_API PhysicalGameObj *Create_Object(const DefinitionClass *Def,const Matrix3D &Transform);
-	DA_API SoldierGameObj *Create_Commando(cPlayer *Player,const char *Preset,const Vector3 &Position);
-	DA_API SoldierGameObj *Create_Commando(cPlayer *Player,const char *Preset,const Matrix3D &Transform);
-	DA_API SoldierGameObj *Create_Commando(cPlayer *Player,int Preset,const Vector3 &Position);
-	DA_API SoldierGameObj *Create_Commando(cPlayer *Player,int Preset,const Matrix3D &Transform);
-	DA_API SoldierGameObj *Create_Commando(cPlayer *Player,const DefinitionClass *Def,const Vector3 &Position);
-	DA_API SoldierGameObj *Create_Commando(cPlayer *Player,const DefinitionClass *Def,const Matrix3D &Transform);
-	DA_API void Disable_Building_Type(int Team,BuildingConstants::BuildingType Type);
-	DA_API unsigned int Get_Hash(const char *String);
 	DA_API bool Is_Starting_Weapon(const SoldierGameObjDef *Soldier,const PowerUpGameObjDef *PowerUp);
 	DA_API bool Is_Starting_Weapon(SoldierGameObj *Soldier,const PowerUpGameObjDef *PowerUp);
-	DA_API void Fix_Stuck_Objects(const Vector3 &Position,float CheckRange,float Range,bool DestroyUnfixable = true);
-	DA_API StringClass Clean_Model_Name(StringClass Model);
 	DA_API StringClass Get_Weapon_PowerUp_Model(const WeaponDefinitionClass *Weapon);
-	DA_API void Add_Console_Function(ConsoleFunctionClass *Func);
-	DA_API int Get_Building_Count(int Team,bool Destroyed);
-	DA_API void Enable_HUD(bool Enable);
-	DA_API void Enable_HUD_Player_By_ID(int ID,bool Enable);
-	DA_API void Set_Fog_Enable_Player_By_ID(int ID,bool Enable);
-	DA_API void Set_Fog_Range_Player_By_ID(int ID,float StartDistance,float EndDistance,float Transition);
-	DA_API bool Exit_Vehicle(SoldierGameObj *Soldier);
-	DA_API void Reverse_Damage(GameObject *obj,float Amount);
-	DA_API void Set_Emot_Icon(int ID,const char *Model,int Team);
-
-	Unsure if should be done:
-	DA_API void Set_Object_Dirty_Bit_For_Version_Greater_Than(NetworkObjectClass *obj,float Version,NetworkObjectClass::DIRTY_BIT Bit,bool OnOff);
-	DA_API void Set_Object_Dirty_Bit_For_Version_Less_Than(NetworkObjectClass *obj,float Version,NetworkObjectClass::DIRTY_BIT Bit,bool OnOff);
-	DA_API void Set_Object_Dirty_Bit_For_Team_Version_Greater_Than(NetworkObjectClass *obj,int Team,float Version,NetworkObjectClass::DIRTY_BIT Bit,bool OnOff);
-	DA_API void Set_Object_Dirty_Bit_For_Team_Version_Less_Than(NetworkObjectClass *obj,int Team,float Version,NetworkObjectClass::DIRTY_BIT Bit,bool OnOff);
 	*/
 
 	/*
@@ -1511,8 +2035,6 @@ void AddFunctionsDA(lua_State* L)
 	DA_API static void Get_Damagers_By_Percent_Other_Team(DynamicVectorClass<DADamageTableStruct> &Buffer,GameObject *obj,int Team,float MinimumPercentTotal,float MinimumPercentHighest);
 	DA_API static cPlayer *Get_Highest_Damager_Team(GameObject *obj,int Team);
 	DA_API static cPlayer *Get_Highest_Damager_Other_Team(GameObject *obj,int Team);
-	DA_API static float Get_Percent_Team_Damage(GameObject *obj,int Team);
-	DA_API static float Get_Percent_Other_Team_Damage(GameObject *obj,int Team);
 	DA_API static float Get_Percent_Player_Damage(GameObject *obj,cPlayer *Player);
 	DA_API static const DADamageEventStruct *Get_Last_Damage_Event(GameObject *obj);
 
@@ -1546,48 +2068,17 @@ void AddFunctionsDA(lua_State* L)
 	// da_game.h
 	/*
 	DA_API static DAGameModeFactoryClass *Get_Game_Mode();
-	DA_API static const char *Get_Game_Mode_Long_Name();
-	DA_API static const char *Get_Game_Mode_Short_Name();
-	DA_API static bool Is_Game_Mode(const char *Name);
 	DA_API static DAGameModeFactoryClass *Find_Game_Mode(const char *Name);
 	DA_API static DAGameFeatureFactoryClass *Find_Game_Feature(const char *Name);
 	DA_API static void Add_Game_Mode(DAGameModeFactoryClass *Factory);
 	DA_API static void Add_Game_Feature(DAGameFeatureFactoryClass* Factory);
 	DA_API static const DynamicVectorClass<DAGameFeatureFactoryClass*> &Get_Game_Features();
-	DA_API static bool Is_Shutdown_Pending();
-	DA_API static const StringClass &Get_Map();
-	*/
-
-	// da_log.h
-	/*
-	DALogManager
-	DA_API static void Write_Log(const char *Header,const char *Format,...);
-	DA_API static void Write_GameLog(const char *Format,...);
-	DA_API static void Send(const char *Data);
 	*/
 
 	// da_player.h
 	/*
 	DA_API static void Add_Data_Factory(DAPlayerDataFactoryClass *Factory);
 	DA_API static void Remove_Data_Factory(DAPlayerDataFactoryClass *Factory);
-	DA_API static bool Get_Disable_Kill_Messages();
-	DA_API static bool Get_Disable_Kill_Counter();
-	DA_API static bool Get_Disable_Team_Kill_Counter();
-	DA_API static bool Get_Disable_Death_Counter();
-	DA_API static bool Get_Disable_Team_Death_Counter();
-	DA_API static bool Get_Disable_Damage_Points();
-	DA_API static bool Get_Disable_Death_Points();
-	DA_API static bool Get_Disable_Team_Score_Counter();
-	DA_API static float Get_Credits_Multiplier();
-	DA_API static void Set_Disable_Kill_Messages(bool Enable);
-	DA_API static void Set_Disable_Kill_Counter(bool Disable);
-	DA_API static void Set_Disable_Team_Kill_Counter(bool Disable);
-	DA_API static void Set_Disable_Death_Counter(bool Disable);
-	DA_API static void Set_Disable_Team_Death_Counter(bool Disable);
-	DA_API static void Set_Disable_Damage_Points(bool Disable);
-	DA_API static void Set_Disable_Death_Points(bool Disable);
-	DA_API static void Set_Disable_Team_Score_Counter(bool Disable);
-	DA_API static void Set_Credits_Multiplier(float Multiplier);
 	*/
 
 	// da_soldier.h
@@ -1597,16 +2088,6 @@ void AddFunctionsDA(lua_State* L)
 	DA_API static HashTemplateClass<unsigned int,DynamicVectorClass<const WeaponDefinitionClass*>>  &Get_Remove_Weapons();
 	*/
 
-	// da_team.h
-	/*
-	DA_API static void Set_Force_Team(int Team);
-	DA_API static int Get_Force_Team();
-	DA_API static bool Is_Free_Team_Changing_Enabled();
-	DA_API static void Remix();
-	DA_API static void Rebalance();
-	DA_API static void Swap();
-	*/
-
 	// da_translation.h
 	/*
 	DA_API static const char *Translate(GameObject *obj); //Returns the translated name of a GameObject, Weapon, or Preset.
@@ -1614,9 +2095,6 @@ void AddFunctionsDA(lua_State* L)
 	DA_API static const char *Translate(const DefinitionClass *Def);
 	DA_API static const char *Translate(const char *Preset);
 	DA_API static const char *Translate(unsigned int DefID);
-	DA_API static StringClass Translate_With_Team_Name(GameObject *obj); //Returns the translated name and team of a GameObject.
-	DA_API static const char *Translate_Weapon(GameObject *obj); //Returns the translated name of the current weapon of a GameObject.
-	DA_API static StringClass Translate_Soldier(GameObject *obj); //Returns the translated name and translated weapon, or the translated vehicle, of a SoldierGameObj.
 	*/
 
 	// da_vehicle.h
@@ -1624,11 +2102,6 @@ void AddFunctionsDA(lua_State* L)
 	DA_API static bool Check_Limit_For_Player(cPlayer *Player);
 	DA_API static DAVehicleObserverClass *Get_Vehicle_Data(GameObject *obj);
 	DA_API static cPlayer *Get_Vehicle_Owner(GameObject *obj);
-	DA_API static int Get_Team(GameObject *obj);
-	DA_API static void Air_Drop_Vehicle(int Team,VehicleGameObj *Vehicle,const Vector3 &Position,float Facing);
-	DA_API static VehicleGameObj *Air_Drop_Vehicle(int Team,const VehicleGameObjDef *Vehicle,const Vector3 &Position,float Facing);
-	DA_API static VehicleGameObj *Air_Drop_Vehicle(int Team,unsigned int Vehicle,const Vector3 &Position,float Facing);
-	DA_API static VehicleGameObj *Air_Drop_Vehicle(int Team,const char *Vehicle,const Vector3 &Position,float Facing);
 	*/
 }
 #endif
