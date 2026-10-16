@@ -250,13 +250,11 @@ void LuaScriptManager::Cleanup()
 {
 	if (Scripts.size() > 0)
 	{
-
 		for (auto script_it = Scripts.rbegin(); script_it != Scripts.rend(); ++script_it)
 		{
 			LuaScriptRegistrant<LuaScript> *s = (*script_it);
 			if (s != nullptr)
 			{
-				ScriptRegistrar::UnregisterScript(s);
 				delete s;
 				s = nullptr;
 			}

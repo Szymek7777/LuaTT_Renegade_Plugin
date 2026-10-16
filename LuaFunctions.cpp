@@ -15853,11 +15853,121 @@ int Lua_Find_Closest_Poly_Position(lua_State* L)
 	return 1;
 }
 
-/*!details Returns whether kill messages are currently disabled.
+/*! \details Returns the radio command string ID associated with a radio index.
+ *  \par Lua Command
+ *          result = Get_Radio_Command_String(Index)
+ *  \param Index Number - Radio command index to look up.
+ *  \return Number - The radio command string ID for the given index.
+ */
+int Lua_Get_Radio_Command_String(lua_State* L)
+{
+	if (lua_gettop(L) < 1) return 0;
+	int index = luaL_checkinteger(L, 1);
+	int result = Get_Radio_Command_String(index);
+	lua_pushnumber(L, result);
+	return 1;
+}
+
+/*! \details Finds the closest pathfinding spot to a given world position.
+ *  \par Lua Command
+ *          pos = Get_Closest_Pathfind_Spot(Center, MaxDistance)
+ *  \param Center Vector3 - The world position to search from.
+ *  \param MaxDistance Number - Maximum search distance.
+ *  \return Vector3 - The closest pathfinding spot, or nothing if none was found.
+ */
+int Lua_Get_Closest_Pathfind_Spot(lua_State* L)
+{
+	if (lua_gettop(L) < 2) return 0;
+	LUA_Vector3* a = LuaVector3::GetInstance(L, 1);
+	Vector3 center(a->X(), a->Y(), a->Z());
+	float maxDistance = luaL_checknumber(L, 2);
+	Vector3 returnPosition;
+	if (!Get_Closest_Pathfind_Spot(center, maxDistance, &returnPosition))
+	{
+		return 0;
+	}
+
+	// Build the Vector3 result using the globally registered Vector3 constructor
+	// (registered as the "Vector3" global by LuaVector3::Register).
+	lua_getglobal(L, "Vector3");
+	lua_pushnumber(L, returnPosition.X);
+	lua_pushnumber(L, returnPosition.Y);
+	lua_pushnumber(L, returnPosition.Z);
+	if (lua_pcall(L, 3, 1, 0) != 0)
+	{
+		lua_pop(L, 1);
+		return 0;
+	}
+	return 1;
+}
+
+/*! \details Finds the closest pathfinding spot of a minimum size to a given world position.
+ *  \par Lua Command
+ *          pos = Get_Closest_Pathfind_Spot_Size(Center, MaxDistance, MinSectorSize)
+ *  \param Center Vector3 - The world position to search from.
+ *  \param MaxDistance Number - Maximum search distance.
+ *  \param MinSectorSize Number - Minimum size of the pathfinding sector to accept.
+ *  \return Vector3 - The closest pathfinding spot, or nothing if none was found.
+ */
+int Lua_Get_Closest_Pathfind_Spot_Size(lua_State* L)
+{
+	if (lua_gettop(L) < 3) return 0;
+	LUA_Vector3* a = LuaVector3::GetInstance(L, 1);
+	Vector3 center(a->X(), a->Y(), a->Z());
+	float maxDistance = luaL_checknumber(L, 2);
+	float minSectorSize = luaL_checknumber(L, 3);
+	Vector3 returnPosition;
+	if (!Get_Closest_Pathfind_Spot_Size(center, maxDistance, &returnPosition, minSectorSize))
+	{
+		return 0;
+	}
+
+	// Build the Vector3 result using the globally registered Vector3 constructor
+	// (registered as the "Vector3" global by LuaVector3::Register).
+	lua_getglobal(L, "Vector3");
+	lua_pushnumber(L, returnPosition.X);
+	lua_pushnumber(L, returnPosition.Y);
+	lua_pushnumber(L, returnPosition.Z);
+	if (lua_pcall(L, 3, 1, 0) != 0)
+	{
+		lua_pop(L, 1);
+		return 0;
+	}
+	return 1;
+}
+
+/*!details Returns the pathfind distance and blocking result to a destination.
  *  \par Command Usage Example
- *          disabled = Kill_Messages_Disabled()
+ *          distance, result = Get_Pathfind_Distance_Blocking(ObjectID, Destination)
  *
- *  \return Number `true` if kill messages are disabled; otherwise `false`.
+ *  \param ObjectID Integer ID of the object to calculate pathfind distance from.
+ *  \param Destination LuaVector3 destination position.
+ *  \return Number distance The calculated pathfind distance.
+ *  \return Number result The pathfind distance result code.
+ */
+// Lua wrapper for the engine function Get_Pathfind_Distance_Blocking.
+int Lua_Get_Pathfind_Distance_Blocking(lua_State* L)
+{
+	if (lua_gettop(L) < 2) return 0;
+	GameObject* obj = Commands->Find_Object(luaL_checkinteger(L, 1));
+	if (!obj || !obj->As_SmartGameObj()) return 0;
+	LUA_Vector3* a = LuaVector3::GetInstance(L, 2);
+	Vector3 dest(a->X(), a->Y(), a->Z());
+	float distanceResult;
+	PathfindDistanceResult pathfindResult;
+	if (!Get_Pathfind_Distance_Blocking(obj->As_SmartGameObj(), dest, distanceResult, pathfindResult))
+	{
+		return 0;
+	}
+	lua_pushnumber(L, distanceResult);
+	lua_pushnumber(L, static_cast<int>(pathfindResult));
+	return 2;
+}
+
+/*! \details Returns whether kill messages are currently disabled.
+ *  \par Lua Command
+ *          disabled = Kill_Messages_Disabled()
+ *  \return Boolean true if kill messages are disabled, false otherwise.
  */
 int Lua_Kill_Messages_Disabled(lua_State* L)
 {
@@ -15866,40 +15976,163 @@ int Lua_Kill_Messages_Disabled(lua_State* L)
 	return 1;
 }
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+/*! \details Adds a new objective to the game.
+ *  \par Lua Command
+ *          Add_Objective(ID, Type, Status, ShortDescID, Sound, LongDescID)
+ *  \param ID Integer objective identifier.
+ *  \param Type Integer objective type.
+ *  \param Status Integer objective status.
+ *  \param ShortDescID Integer short description ID.
+ *  \param Sound String sound to play for the objective.
+ *  \param LongDescID Integer long description ID.
+ *  \return None
+ */
+int Lua_Add_Objective(lua_State* L)
+{
+	if (lua_gettop(L) < 6) return 0;
+	int id = luaL_checkinteger(L, 1);
+	int type = luaL_checkinteger(L, 2);
+	int status = luaL_checkinteger(L, 3);
+	int short_desc_id = luaL_checkinteger(L, 4);
+	const char* sound = luaL_checkstring(L, 5);
+	int long_desc_id = luaL_checkinteger(L, 6);
+	Commands->Add_Objective(id, type, status, short_desc_id, const_cast<char*>(sound), long_desc_id);
+	return 0;
+}
 
+/*! \details Removes an objective from the game.
+ *  \par Lua Command
+ *          Remove_Objective(ID)
+ *  \param ID Integer objective identifier.
+ *  \return None
+ */
+int Lua_Remove_Objective(lua_State* L)
+{
+    if (lua_gettop(L) < 1) return 0;
+    int id = luaL_checkinteger(L, 1);
+	Commands->Remove_Objective(id);
+    return 0;
+}
+
+/*! \details Sets the status of an objective.
+ *  \par Lua Command
+ *          Set_Objective_Status(ID, Status)
+ *  \param ID Integer objective identifier.
+ *  \param Status Integer new status for the objective.
+ *  \return None
+ */
+int Lua_Set_Objective_Status(lua_State* L)
+{
+    if (lua_gettop(L) < 2) return 0;
+    int id = luaL_checkinteger(L, 1);
+    int status = luaL_checkinteger(L, 2);
+	Commands->Set_Objective_Status(id, status);
+    return 0;
+}
+
+/*! \details Changes the type of an objective.
+ *  \par Lua Command
+ *          Change_Objective_Type(ID, Type)
+ *  \param ID Integer objective identifier.
+ *  \param Type Integer new type for the objective.
+ *  \return None
+ */
+int Lua_Change_Objective_Type(lua_State* L)
+{
+    if (lua_gettop(L) < 2) return 0;
+    int id = luaL_checkinteger(L, 1);
+    int type = luaL_checkinteger(L, 2);
+	Commands->Change_Objective_Type(id, type);
+    return 0;
+}
+
+/*! \details Sets the radar blip object for an objective.
+ *  \par Lua Command
+ *          Set_Objective_Radar_Blip_Object(ID, ObjectID)
+ *  \param ID Integer objective identifier.
+ *  \param ObjectID Integer ID of the object to blip on radar.
+ *  \return None
+ */
+int Lua_Set_Objective_Radar_Blip_Object(lua_State* L)
+{
+    if (lua_gettop(L) < 2) return 0;
+    int id = luaL_checkinteger(L, 1);
+    GameObject* unit = Commands->Find_Object(luaL_checkinteger(L, 2));
+    if (unit)
+		Commands->Set_Objective_Radar_Blip_Object(id, unit);
+    return 0;
+}
+
+/*! \details Sets HUD information for an objective.
+ *  \par Lua Command
+ *          Set_Objective_HUD_Info(ID, Priority, Texture, MessageID)
+ *  \param ID Integer objective identifier.
+ *  \param Priority Float priority for HUD display.
+ *  \param Texture String texture name for HUD.
+ *  \param MessageID Integer message ID for HUD.
+ *  \return None
+ */
+int Lua_Set_Objective_HUD_Info(lua_State* L)
+{
+    if (lua_gettop(L) < 4) return 0;
+    int id = luaL_checkinteger(L, 1);
+    float priority = luaL_checknumber(L, 2);
+    const char* texture = luaL_checkstring(L, 3);
+    int message_id = luaL_checkinteger(L, 4);
+	Commands->Set_Objective_HUD_Info(id, priority, texture, message_id);
+    return 0;
+}
+
+/*! \details Sets HUD information and position for an objective.
+ *  \par Lua Command
+ *          Set_Objective_HUD_Info_Position(ID, Priority, Texture, MessageID, Position)
+ *  \param ID Integer objective identifier.
+ *  \param Priority Float priority for HUD display.
+ *  \param Texture String texture name for HUD.
+ *  \param MessageID Integer message ID for HUD.
+ *  \param Position LuaVector3 position for HUD display.
+ *  \return None
+ */
+int Lua_Set_Objective_HUD_Info_Position(lua_State* L)
+{
+    if (lua_gettop(L) < 5) return 0;
+    int id = luaL_checkinteger(L, 1);
+    float priority = luaL_checknumber(L, 2);
+    const char* texture = luaL_checkstring(L, 3);
+    int message_id = luaL_checkinteger(L, 4);
+    LUA_Vector3* a = LuaVector3::GetInstance(L, 5);
+    Vector3 pos(a->X(), a->Y(), a->Z());
+	Commands->Set_Objective_HUD_Info_Position(id, priority, texture, message_id, pos);
+    return 0;
+}
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #define REGFUNC(func) lua_register(L, #func, Lua_##func);
 
 void AddFunctions(lua_State *L)
 {
-
 /* TODO
-	Set_Emote_Icon?
-	Get_Radio_Command_String
-	Get_Closest_Pathfind_Spot_Size
-	Get_Closest_Pathfind_Spot
-	
-	Get_Pathfind_Distance_Blocking
 	Get_Pathfind_Distance_Async
 	Cancel_Get_Pathfind_Distance
 	Get_Pathfind_Distance
-
-	void	(* Add_Objective)( int id, int type, int status, int short_description_id, char * description_sound_filename, int long_description_id);
-	void	(* Remove_Objective)( int id );
-	void	(* Set_Objective_Status)( int id, int status );
-	void	(* Change_Objective_Type)( int id, int type );
-	void	(* Set_Objective_Radar_Blip)( int id, const Vector3 & position );
-	void	(* Set_Objective_Radar_Blip_Object)( int id, ScriptableGameObj * unit );
-	void	(* Set_Objective_HUD_Info)( int id, float priority, const char * texture_name, int message_id );
-	void	(* Set_Objective_HUD_Info_Position)( int id, float priority, const char * texture_name, int message_id, const Vector3 & position );
-
 */	
+	REGFUNC(Set_Objective_HUD_Info_Position)
 	REGFUNC(Set_Subobject_Animation)
+	REGFUNC(Remove_Objective)
+	REGFUNC(Set_Objective_HUD_Info)
+	REGFUNC(Set_Objective_Radar_Blip_Object)
+	REGFUNC(Set_Objective_Status)
+	REGFUNC(Change_Objective_Type)
 	REGFUNC(Say_Dynamic_Dialogue)
 	REGFUNC(Say_Dynamic_Dialogue_Player)
 	REGFUNC(Say_Dynamic_Dialogue_Team)
 	REGFUNC(Find_Closest_Poly_Position)
 	REGFUNC(Kill_Messages_Disabled)
+	REGFUNC(Get_Radio_Command_String)
+	REGFUNC(Get_Closest_Pathfind_Spot)
+	REGFUNC(Get_Closest_Pathfind_Spot_Size)
+	REGFUNC(Get_Pathfind_Distance_Blocking)
+	REGFUNC(Add_Objective)
 	REGFUNC(Display_HUD_Ammo_Grant_Player)
 	REGFUNC(Get_Multiplayer_Spawn_Location)
 	REGFUNC(Set_Subobject_Animation_Player)

@@ -35,31 +35,6 @@
     <ClCompile Include="Lua_Class.cpp" />
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="print_cpp.cpp" />
-    <ClCompile Include="SlaScripts\sla.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release DA|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SSGM|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SSGM|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="SlaScripts\sla_ai.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release DA|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SSGM|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SSGM|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="SlaScripts\sla_imst.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release DA|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SSGM|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SSGM|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="SlaScripts\sla_kambot.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release DA|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SSGM|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SSGM|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="SlaScripts\sla_rf.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release DA|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SSGM|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SSGM|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConversationControl.h" />
@@ -84,31 +59,6 @@
     <ClInclude Include="luatt.h" />
     <ClInclude Include="Lua_Class.h" />
     <ClInclude Include="plugin.h" />
-    <ClInclude Include="SlaScripts\sla.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release DA|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SSGM|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SSGM|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="SlaScripts\sla_ai.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release DA|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SSGM|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SSGM|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="SlaScripts\sla_imst.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release DA|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SSGM|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SSGM|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="SlaScripts\sla_kambot.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release DA|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SSGM|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SSGM|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="SlaScripts\sla_rf.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release DA|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release SSGM|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug SSGM|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BB829477-3757-4894-BF1F-B30CE96AF3E1}</ProjectGuid>

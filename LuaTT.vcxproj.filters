@@ -13,22 +13,8 @@
     <ClCompile Include="print_cpp.cpp" />
     <ClCompile Include="ConversationControl.cpp" />
     <ClCompile Include="lsqlite3.c" />
-    <ClCompile Include="SlaScripts\sla.cpp">
-      <Filter>SlaScripts</Filter>
-    </ClCompile>
-    <ClCompile Include="SlaScripts\sla_ai.cpp">
-      <Filter>SlaScripts</Filter>
-    </ClCompile>
-    <ClCompile Include="SlaScripts\sla_imst.cpp">
-      <Filter>SlaScripts</Filter>
-    </ClCompile>
-    <ClCompile Include="SlaScripts\sla_rf.cpp">
-      <Filter>SlaScripts</Filter>
-    </ClCompile>
-    <ClCompile Include="SlaScripts\sla_kambot.cpp">
-      <Filter>SlaScripts</Filter>
-    </ClCompile>
     <ClCompile Include="LuaDialog.cpp" />
+    <ClCompile Include="LuaThread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="General.h" />
@@ -63,29 +49,12 @@
     </ClInclude>
     <ClInclude Include="ConversationControl.h" />
     <ClInclude Include="lsqlite3.h" />
-    <ClInclude Include="SlaScripts\sla.h">
-      <Filter>SlaScripts</Filter>
-    </ClInclude>
-    <ClInclude Include="SlaScripts\sla_ai.h">
-      <Filter>SlaScripts</Filter>
-    </ClInclude>
-    <ClInclude Include="SlaScripts\sla_imst.h">
-      <Filter>SlaScripts</Filter>
-    </ClInclude>
-    <ClInclude Include="SlaScripts\sla_kambot.h">
-      <Filter>SlaScripts</Filter>
-    </ClInclude>
-    <ClInclude Include="SlaScripts\sla_rf.h">
-      <Filter>SlaScripts</Filter>
-    </ClInclude>
     <ClInclude Include="LuaDialog.h" />
+    <ClInclude Include="LuaThread.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="LuaLib">
       <UniqueIdentifier>{ab52f636-9bd9-40f1-80ba-fcaa45b6cd39}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SlaScripts">
-      <UniqueIdentifier>{e995d291-e4b4-47af-a9b3-19f27cccc5e1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

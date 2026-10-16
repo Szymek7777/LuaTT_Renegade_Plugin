@@ -72,19 +72,6 @@ public:
 		{
 			if (script)
 			{
-				SList<GameObject> list;
-				Find_All_Objects_With_Script(str_name, list);
-
-				SLNode<GameObject> *x = list.Head();
-				while (x)
-				{
-					if (x->Data() && x->Data()->As_ScriptableGameObj())
-					{
-						auto obs = x->Data()->As_ScriptableGameObj()->Find_Observer(str_name);
-						x->Data()->As_ScriptableGameObj()->Remove_Observer(obs);
-					}
-					x = x->Next();
-				}
 				script->setLua(nullptr, 0, this);
 				script->Destroy_Script();
 			}
